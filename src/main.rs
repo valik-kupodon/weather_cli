@@ -1,5 +1,48 @@
 mod command_line_interface;
+use command_line_interface::custom_config;
 
 fn main() {
-    command_line_interface::get_args()
+    let matches = command_line_interface::register_args();
+    // Matches the commands and performs actions
+    match matches.subcommand() {
+        Some(("configure", sub_m)) => {
+            let packages: Vec<_> = sub_m
+                .get_many::<String>("provider")
+                .expect("contains_id")
+                .map(|s| s.as_str())
+                .collect();
+            let provider = packages.join(", ");
+            let packages: Vec<_> = sub_m
+                .get_many::<String>("api_key")
+                .expect("contains_id")
+                .map(|s| s.as_str())
+                .collect();
+            let api_key = packages.join(", ");
+            println!("Configuring provider: {}, {}", provider, api_key);
+            let config = custom_config::Configuration{provider, api_key};
+            config.wright_configuration_for_weather_provider()
+        },
+        Some(("get", sub_m)) => {
+            if sub_m.contains_id("address") {
+                let packages: Vec<_> = sub_m
+                    .get_many::<String>("address")
+                    .expect("contains_id")
+                    .map(|s| s.as_str())
+                    .collect();
+                let address = packages.join(", ");
+                println!("Configuring provider: {}", address);
+            }
+            if sub_m.contains_id("date") {
+                let packages: Vec<_> = sub_m
+                    .get_many::<String>("date")
+                    .expect("contains_id")
+                    .map(|s| s.as_str())
+                    .collect();
+                let date = packages.join(", ");
+                println!("Configuring provider: {}", date);
+            }
+            // TODO: Implement the weather fetching logic here
+        },
+        _ => (),
+    }
 }
