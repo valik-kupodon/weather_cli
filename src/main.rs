@@ -19,9 +19,9 @@ fn main() {
                 .collect();
             let api_key = packages.join(", ");
             println!("Configuring provider: {}, {}", provider, api_key);
-            let config = custom_config::Configuration{provider, api_key};
+            let config = custom_config::Configuration { provider, api_key };
             config.wright_configuration_for_weather_provider()
-        },
+        }
         Some(("get", sub_m)) => {
             if sub_m.contains_id("address") {
                 let packages: Vec<_> = sub_m
@@ -42,7 +42,7 @@ fn main() {
                 println!("Configuring provider: {}", date);
             }
             // TODO: Implement the weather fetching logic here
-        },
+        }
         _ => (),
     }
 }
