@@ -28,7 +28,7 @@ pub fn register_args() -> ArgMatches {
                 .about("Shows weather for the provided address")
                 .arg(
                     Arg::new("address")
-                        .help("Sets the address to get weather for")
+                        .help("Sets the address in format string of lan and lon to get weather for")
                         .required(true)
                         .index(1),
                 )

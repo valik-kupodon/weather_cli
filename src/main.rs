@@ -1,4 +1,6 @@
 mod command_line_interface;
+mod weather_integrations;
+
 use command_line_interface::custom_config;
 
 fn main() {
@@ -23,25 +25,20 @@ fn main() {
             config.wright_configuration_for_weather_provider()
         }
         Some(("get", sub_m)) => {
-            if sub_m.contains_id("address") {
-                let packages: Vec<_> = sub_m
-                    .get_many::<String>("address")
-                    .expect("contains_id")
-                    .map(|s| s.as_str())
-                    .collect();
-                let address = packages.join(", ");
+            let packages: Vec<_> = sub_m
+                .get_many::<String>("address")
+                .expect("contains_id")
+                .map(|s| s.as_str())
+                .collect();
+            let address = packages.join(", ");
                 println!("Configuring provider: {}", address);
-            }
-            if sub_m.contains_id("date") {
-                let packages: Vec<_> = sub_m
-                    .get_many::<String>("date")
-                    .expect("contains_id")
-                    .map(|s| s.as_str())
-                    .collect();
-                let date = packages.join(", ");
-                println!("Configuring provider: {}", date);
-            }
-            // TODO: Implement the weather fetching logic here
+            let packages: Vec<_> = sub_m
+                .get_many::<String>("date")
+                .expect("contains_id")
+                .map(|s| s.as_str())
+                .collect();
+            let date = packages.join(", ");
+            println!("Configuring provider: {}", date);
         }
         _ => (),
     }
