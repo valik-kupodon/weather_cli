@@ -27,16 +27,22 @@ pub fn register_args() -> ArgMatches {
             Command::new("get")
                 .about("Shows weather for the provided address")
                 .arg(
-                    Arg::new("address")
+                    Arg::new("latitude")
                         .help("Sets the address in format string of lan and lon to get weather for")
                         .required(true)
                         .index(1),
                 )
                 .arg(
+                    Arg::new("longitude")
+                        .help("Sets the address in format string of lan and lon to get weather for")
+                        .required(true)
+                        .index(2),
+                )
+                .arg(
                     Arg::new("date")
                         .help("Sets the date (optional, defaults to now)")
                         .required(false)
-                        .index(2),
+                        .index(3),
                 ),
         )
         .get_matches()

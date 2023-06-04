@@ -10,8 +10,8 @@ const CONFIG_FILE_NAME: &str = ".weather_cli.txt";
 
 #[derive(Serialize, Deserialize)]
 pub struct Configuration {
-    pub provider: String,
-    pub api_key: String,
+    pub provider: Option<String>,
+    pub api_key: Option<String>,
 }
 
 impl Configuration {
@@ -41,14 +41,18 @@ impl Configuration {
         }
         let config_map: HashMap<String, String> = self._read_json_file(config_file)?;
         Ok(Configuration {
-            provider: config_map
-                .get("provider")
-                .ok_or("Please configure provider first")?
-                .to_owned(),
-            api_key: config_map
-                .get("api_key")
-                .ok_or("Please configure provider first")?
-                .to_owned(),
+            provider: Some(
+                config_map
+                    .get("provider")
+                    .ok_or("Please configure provider first")?
+                    .to_owned(),
+            ),
+            api_key: Some(
+                config_map
+                    .get("api_key")
+                    .ok_or("Please configure provider first")?
+                    .to_owned(),
+            ),
         })
     }
 
