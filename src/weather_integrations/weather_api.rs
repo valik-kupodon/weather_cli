@@ -1,9 +1,5 @@
-use crate::weather_integrations::open_weather_map_schemas::OpenWeatherBody;
 use crate::weather_integrations::WeatherIntegration;
-use clap::Subcommand;
 use reqwest::blocking::Client;
-use reqwest::StatusCode;
-use tokio::runtime::Runtime;
 use crate::weather_integrations::weather_api_schemas::WeatherApiResponse;
 
 pub struct WeatherApiProcessor {
@@ -50,7 +46,7 @@ impl WeatherIntegration for WeatherApiProcessor {
         }
     }
 
-    fn parse_response(&self) -> serde_json::Result<String> {
+    fn parse_response(&self) {
         // Implement the logic to parse the response JSON and extract the weather data
         // In this example, we simply return the response as-is as a Vec<u8>
         let response = self.make_request().unwrap();
@@ -64,7 +60,6 @@ impl WeatherIntegration for WeatherApiProcessor {
             weather, temperature, pressure, humidity
         );
         println!("{}", parsed_string);
-        Ok(parsed_string)
     }
 
     fn get_data_for_request(&self) -> String {

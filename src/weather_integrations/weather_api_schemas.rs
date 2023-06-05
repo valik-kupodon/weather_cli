@@ -1,7 +1,4 @@
-use serde::Deserializer;
 use serde_derive::{Deserialize, Serialize};
-use serde_json::Value;
-use std::collections::HashMap;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct WeatherApiResponse {

@@ -49,3 +49,45 @@ pub fn register_args() -> ArgMatches {
         )
         .get_matches()
 }
+
+pub fn get_provider_and_api_key_args(sub_m: &ArgMatches) -> (String, String) {
+    let packages: Vec<_> = sub_m
+        .get_many::<String>("provider")
+        .expect("contains_id")
+        .map(|s| s.as_str())
+        .collect();
+    let provider = packages.join(", ");
+    let packages: Vec<_> = sub_m
+        .get_many::<String>("api_key")
+        .expect("contains_id")
+        .map(|s| s.as_str())
+        .collect();
+    let api_key = packages.join(", ");
+    (provider, api_key)
+}
+
+pub fn get_weather_args(sub_m: &ArgMatches) -> (String, String, Option<String>) {
+    let latitude_vec: Vec<_> = sub_m
+        .get_many::<String>("latitude")
+        .expect("contains_id")
+        .map(|s| s.as_str())
+        .collect();
+    let latitude = latitude_vec.join(",");
+    let longitude_vec: Vec<_> = sub_m
+        .get_many::<String>("longitude")
+        .expect("contains_id")
+        .map(|s| s.as_str())
+        .collect();
+    let longitude = longitude_vec.join(",");
+    let date = None;
+    if sub_m.contains_id("date") {
+        let packages: Vec<_> = sub_m
+            .get_many::<String>("date")
+            .expect("contains_id")
+            .map(|s| s.as_str())
+            .collect();
+        let date = packages.join(", ");
+        return (latitude, longitude, Option::from(date));
+    }
+    return (latitude, longitude, date);
+}
