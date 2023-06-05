@@ -1,6 +1,7 @@
 pub mod custom_config;
 
 use clap::{Arg, ArgMatches, Command};
+use crate::{OPEN_WEATHER_MAP_NAME, WEATHER_API_NAME};
 
 pub fn register_args() -> ArgMatches {
     Command::new("Weather CLI")
@@ -13,6 +14,7 @@ pub fn register_args() -> ArgMatches {
                 .arg(
                     Arg::new("provider")
                         .help("Sets the provider to configure")
+                        .value_parser(clap::builder::PossibleValuesParser::new([OPEN_WEATHER_MAP_NAME, WEATHER_API_NAME]))
                         .required(true)
                         .index(1),
                 )

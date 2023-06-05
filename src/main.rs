@@ -1,11 +1,15 @@
 mod command_line_interface;
 mod weather_integrations;
 
-use crate::custom_config::Configuration;
+use crate::custom_config::{Configuration, ConfigurationHandler};
 use crate::weather_integrations::WeatherIntegration;
 use command_line_interface::custom_config;
 use std::time::Instant;
 use weather_integrations::open_weather_map::OpenWeatherMapProcessor;
+use weather_integrations::weather_api::WeatherApiProcessor;
+
+const OPEN_WEATHER_MAP_NAME: &str = "OpenWeatherMap";
+const WEATHER_API_NAME: &str = "WeatherApi";
 
 fn main() {
     let start = Instant::now();
@@ -26,11 +30,9 @@ fn main() {
                 .collect();
             let api_key = packages.join(", ");
             println!("Configuring provider: {}, {}", provider, api_key);
-            let config = custom_config::Configuration {
-                provider: Some(provider),
-                api_key: Some(api_key),
-            };
-            config.wright_configuration_for_weather_provider()
+            let config = Configuration {provider, api_key};
+            let config_handler = ConfigurationHandler{};
+            config_handler.wright_configuration_for_weather_provider(config)
         }
         Some(("get", sub_m)) => {
             let latitude_vec: Vec<_> = sub_m
@@ -58,19 +60,29 @@ fn main() {
                 let date = packages.join(", ");
                 println!("Configuring provider: {}", date);
             }
-            let cofiguration = Configuration {
-                provider: None,
-                api_key: None,
-            };
+            let config_handler = ConfigurationHandler{};
             let config_values =
-                Configuration::get_configuration_for_particular_weather_provider(&cofiguration)
+                config_handler.get_configuration_for_particular_weather_provider()
                     .unwrap();
-            let open_weather_map_processor = OpenWeatherMapProcessor::new(
-                config_values.api_key,
-                String::from(latitude),
-                String::from(longitude),
-            );
-            open_weather_map_processor.parse_response().unwrap();
+            match config_values.provider.as_str() {
+                OPEN_WEATHER_MAP_NAME => {
+                    let open_weather_map_processor = OpenWeatherMapProcessor::new(
+                    config_values.api_key,
+                    String::from(latitude),
+                    String::from(longitude),
+                    );
+                    open_weather_map_processor.parse_response().unwrap();
+                }
+                WEATHER_API_NAME => {
+                    let weather_api_processor = WeatherApiProcessor::new(
+                        config_values.api_key,
+                        String::from(latitude),
+                        String::from(longitude),
+                    );
+                    weather_api_processor.parse_response().unwrap();
+                }
+                _ => {}
+            }
         }
         _ => (),
     }

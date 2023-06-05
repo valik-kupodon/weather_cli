@@ -10,18 +10,18 @@ const CONFIG_FILE_NAME: &str = ".weather_cli.txt";
 
 #[derive(Serialize, Deserialize)]
 pub struct Configuration {
-    pub provider: Option<String>,
-    pub api_key: Option<String>,
+    pub provider: String,
+    pub api_key: String,
 }
 
-impl Configuration {
-    pub fn wright_configuration_for_weather_provider(&self) {
+pub(crate) struct ConfigurationHandler{}
+
+impl ConfigurationHandler {
+    pub fn wright_configuration_for_weather_provider(&self, config: Configuration) {
         let config_file = self.get_config_file();
         if !config_file.exists() {
             self.create_config_file();
         }
-        let config = self;
-
         let config_json =
             serde_json::to_string_pretty(&config).expect("Failed to serialize configuration");
         fs::write(config_file, config_json).expect("Failed to write configuration file");
@@ -41,18 +41,14 @@ impl Configuration {
         }
         let config_map: HashMap<String, String> = self._read_json_file(config_file)?;
         Ok(Configuration {
-            provider: Some(
-                config_map
+            provider: config_map
                     .get("provider")
                     .ok_or("Please configure provider first")?
                     .to_owned(),
-            ),
-            api_key: Some(
-                config_map
+            api_key: config_map
                     .get("api_key")
                     .ok_or("Please configure provider first")?
                     .to_owned(),
-            ),
         })
     }
 

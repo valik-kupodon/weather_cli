@@ -4,34 +4,37 @@ use clap::Subcommand;
 use reqwest::blocking::Client;
 use reqwest::StatusCode;
 use tokio::runtime::Runtime;
+use crate::weather_integrations::weather_api_schemas::WeatherApiResponse;
 
-pub struct OpenWeatherMapProcessor {
+pub struct WeatherApiProcessor {
     api_key: String,
     lat: String,
     lon: String,
 }
 
-impl OpenWeatherMapProcessor {
+impl WeatherApiProcessor {
     pub(crate) fn new(api_key: String, lat: String, lon: String) -> Self {
-        OpenWeatherMapProcessor { api_key, lat, lon }
+        WeatherApiProcessor { api_key, lat, lon }
     }
 }
 
-const CURRENT_WEATHER_URL: &str = "https://api.openweathermap.org/data/2.5/weather";
+const CURRENT_WEATHER_URL: &str = "http://api.weatherapi.com/v1/current.json?q=";
 
-impl WeatherIntegration for OpenWeatherMapProcessor {
-    type Response = Result<OpenWeatherBody, String>;
-    fn make_request(&self) -> Result<OpenWeatherBody, String> {
+
+impl WeatherIntegration for WeatherApiProcessor {
+    type Response = Result<WeatherApiResponse, String>;
+    fn make_request(&self) -> Result<WeatherApiResponse, String> {
         let url = self.get_data_for_request();
         println!("url: {}", url);
         let raw_response = Client::new()
             .get(url)
             .timeout(std::time::Duration::new(10, 00))
+            .header("key", &self.api_key)
             .send()
             .expect("Unexpected response");
         if raw_response.status().is_success() {
             let json_response = raw_response
-                .json::<OpenWeatherBody>()
+                .json::<WeatherApiResponse>()
                 .expect("Unexpected body");
             Ok(json_response)
         } else if raw_response.status().is_client_error() {
@@ -51,10 +54,10 @@ impl WeatherIntegration for OpenWeatherMapProcessor {
         // Implement the logic to parse the response JSON and extract the weather data
         // In this example, we simply return the response as-is as a Vec<u8>
         let response = self.make_request().unwrap();
-        let weather = &response.weather[0].description;
-        let temperature = &response.main.temp;
-        let pressure = &response.main.pressure;
-        let humidity = &response.main.humidity;
+        let weather = &response.current.condition.text;
+        let temperature = &response.current.temp_f;
+        let pressure = &response.current.pressure_mb;
+        let humidity = &response.current.humidity;
 
         let parsed_string = format!(
             "Weather: {}, Temperature: {} F, Pressure: {} hPa, Humidity: {}%",
@@ -70,8 +73,8 @@ impl WeatherIntegration for OpenWeatherMapProcessor {
         // let lat = "51.5074";
         // let lon = "48.1278";
         let url = format!(
-            "{}?lat={}&lon={}&appid={}",
-            CURRENT_WEATHER_URL, self.lat, self.lon, self.api_key
+            "{}{},{}",
+            CURRENT_WEATHER_URL, self.lat, self.lon
         );
         url
     }
