@@ -21,6 +21,9 @@ jobs:
           toolchain: ${{ matrix.rust-version }}
           override-arch: true
 
+      - name: Install Clippy
+        run: rustup component add clippy-preview --toolchain ${{ matrix.rust-version }}
+
       - name: Check out code
         uses: actions/checkout@v2
 
@@ -34,7 +37,7 @@ jobs:
         run: cargo test --verbose
 
       - name: Clippy Check
-        run: cargo install --force clippy && cargo clippy --verbose -- -D warnings
+        run: cargo clippy --verbose -- -D warnings
 
       - name: Rustfmt Check
         run: cargo install --force rustfmt && cargo fmt --verbose -- --check
