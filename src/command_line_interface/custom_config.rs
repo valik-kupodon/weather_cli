@@ -54,7 +54,7 @@ impl ConfigurationHandler {
 
     fn get_config_dir(&self) -> PathBuf {
         let config_dir = dirs::home_dir().expect("Could not find home directory");
-        return config_dir;
+        config_dir
     }
     fn get_config_file(&self) -> PathBuf {
         let mut config_file = self.get_config_dir();

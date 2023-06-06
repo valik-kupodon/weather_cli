@@ -31,7 +31,7 @@ fn main() {
             let config_values =
                 config_handler.get_configuration_for_particular_weather_provider()
                     .expect("Please, configure weather provider first");
-            let days = get_amount_of_days(date).unwrap_or(0 as i64);
+            let days = get_amount_of_days(date).unwrap_or(0_i64);
             let processing_struct = weather_integration_router(
                 lat, lon, config_values, days
             );
@@ -57,7 +57,7 @@ fn main() {
 fn get_amount_of_days(date: Option<String>) -> Result<i64, ()> {
     if let Some(date_str) = date {
         if let Some(days) = convert_date_to_amount_of_days(date_str.as_str()) {
-            if days < 0 || days > 14 {
+            if !(0..=14).contains(&days) {
                 println!("Forecast available for 14 days only. The current weather:");
                 Err(())
             } else {

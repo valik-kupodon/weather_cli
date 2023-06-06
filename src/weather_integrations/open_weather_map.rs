@@ -34,12 +34,10 @@ impl WeatherIntegration for OpenWeatherMapCurrentProcessor {
             Ok(json_response)
         } else if raw_response.status().is_client_error() {
             println!("status: {}", raw_response.status());
-            Err(format!("Please check your credetials"))
+            Err("Please check your credetials".to_string())
         } else if raw_response.status().is_server_error() {
-            Err(format!(
-                "Sorry, currently weather service is not available.\
-                Please, try again later or configure another one"
-            ))
+            Err("Sorry, currently weather service is not available.\
+                Please, try again later or configure another one".to_string())
         } else {
             Err(format!("Unexpected status"))
         }
@@ -104,12 +102,10 @@ impl WeatherIntegration for OpenWeatherMapForecastProcessor {
             Ok(json_response)
         } else if raw_response.status().is_client_error() {
             println!("status: {}", raw_response.status());
-            Err(format!("Please check your credetials"))
+            Err("Please check your credetials".to_string())
         } else if raw_response.status().is_server_error() {
-            Err(format!(
-                "Sorry, currently weather service is not available.\
-                Please, try again later or configure another one"
-            ))
+            Err("Sorry, currently weather service is not available.\
+                Please, try again later or configure another one".to_string())
         } else {
             Err(format!("Unexpected status"))
         }

@@ -90,7 +90,7 @@ pub fn get_weather_args(sub_m: &ArgMatches) -> (String, String, Option<String>) 
         let date = packages.join(", ");
         return (latitude, longitude, Option::from(date));
     }
-    return (latitude, longitude, date);
+    (latitude, longitude, date)
 }
 
 pub fn convert_date_to_amount_of_days(date: &str) -> Option<i64> {
