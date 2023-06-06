@@ -17,27 +17,30 @@ jobs:
     steps:
       - name: Set up Rust
         run: |
-          if [ "${{ matrix.os }}" = "windows-latest" ]; then
+          if "%OS%"=="Windows_NT" (
             choco install rust -y --version ${{ matrix.rust-version }}
             refreshenv
-          else
+          ) else (
             curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain ${{ matrix.rust-version }}
             export PATH="$HOME/.cargo/bin:$PATH"
-          fi
+          )
           rustc --version
           cargo --version
 
       - name: Check out code
         uses: actions/checkout@v2
 
-      - name: Build
+      - name: Build Debug
+        run: cargo build --verbose
+
+      - name: Build Release
         run: cargo build --verbose --release
 
       - name: Run Tests
         run: cargo test --verbose
 
       - name: Clippy Check
-        run: cargo clippy --verbose -- -D warnings
+        run: cargo install --force clippy && cargo clippy --verbose -- -D warnings
 
       - name: Rustfmt Check
-        run: cargo fmt --verbose -- --check
+        run: cargo install --force rustfmt && cargo fmt --verbose -- --check
