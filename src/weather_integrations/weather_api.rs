@@ -41,7 +41,7 @@ impl WeatherIntegration for WeatherApiProcessor {
             Err("Sorry, currently weather service is not available.\
                 Please, try again later or configure another one".to_string())
         } else {
-            Err(format!("Unexpected status"))
+            Err("Unexpected status".to_string())
         }
     }
 
