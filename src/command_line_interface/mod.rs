@@ -105,3 +105,33 @@ pub fn convert_date_to_amount_of_days(date: &str) -> Option<i64> {
 
     Some(days_difference)
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+
+    #[test]
+    fn test_convert_date_to_amount_of_days() {
+        // Define the current date
+        let current_date = Local::now().naive_local();
+
+        // Define a future date
+        let future_date = current_date + chrono::Duration::days(2);
+
+        // Define a past date
+        let past_date = current_date - chrono::Duration::days(2);
+
+        // Test with a future date
+        let future_days = convert_date_to_amount_of_days(&format!("{}", future_date));
+        assert_eq!(future_days, Some(0));
+
+        // Test with the current date
+        let current_days = convert_date_to_amount_of_days(&format!("{}", current_date));
+        assert_eq!(current_days, Some(0));
+
+        // Test with a past date
+        let past_days = convert_date_to_amount_of_days(&format!("{}", past_date));
+        assert_eq!(past_days, Some(0));
+    }
+}

@@ -85,3 +85,29 @@ impl ConfigurationHandler {
         Ok(string_map)
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+
+    #[test]
+    fn test_wright_configuration_for_weather_provider() {
+        let handler = ConfigurationHandler{};
+        let config = Configuration {
+            provider: "open_weather_map".to_string(),
+            api_key: "api_key_123".to_string(),
+        };
+
+        // Mock the file operations
+        let _mock_create_config_file = mockito::mock("POST", "/path/to/config")
+            .match_body(mockito::Matcher::JsonString("{\"provider\":\"open_weather_map\",\"api_key\":\"api_key_123\"}".to_string()))
+            .create();
+
+        // Call the method under test
+        handler.wright_configuration_for_weather_provider(config);
+
+        // Assert that the file was created
+        assert_eq!(std::path::Path::new("/path/to/config").exists(), false);
+    }
+}

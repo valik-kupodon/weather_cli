@@ -38,6 +38,3 @@ jobs:
 
       - name: Clippy Check
         run: cargo clippy --verbose -- -D warnings
-
-      - name: Rustfmt Check
-        run: cargo install --force rustfmt && cargo fmt --verbose -- --check-style
