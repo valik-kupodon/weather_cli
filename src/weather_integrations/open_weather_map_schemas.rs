@@ -1,7 +1,31 @@
 use serde_derive::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug)]
-pub struct OpenWeatherBody {
+pub struct OpenWeatherForecastResponse{
+    pub list: Vec<List>
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct List{
+    pub weather: Vec<Weather>,
+    pub temp: Temperature,
+    pub pressure: i32,
+    pub humidity: i8,
+
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct Temperature{
+    pub day: f32,
+    pub min: f32,
+    pub max: f32,
+    pub night: f32,
+    pub eve: f32,
+    pub morn: f32,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct OpenWeatherCurrentResponse {
     pub main: Main,
     pub weather: Vec<Weather>,
 }

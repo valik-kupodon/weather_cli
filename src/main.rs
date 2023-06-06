@@ -2,41 +2,17 @@ mod command_line_interface;
 mod weather_integrations;
 
 use crate::custom_config::{Configuration, ConfigurationHandler};
-use crate::weather_integrations::WeatherIntegration;
+use crate::weather_integrations::{weather_integration_router, WeatherIntegration, WeatherIntegrationTypes};
 use command_line_interface::custom_config;
 use std::time::Instant;
-use weather_integrations::open_weather_map::OpenWeatherMapProcessor;
+use weather_integrations::open_weather_map::OpenWeatherMapCurrentProcessor;
 use weather_integrations::weather_api::WeatherApiProcessor;
 use command_line_interface::{get_provider_and_api_key_args, get_weather_args};
+use crate::command_line_interface::convert_date_to_amount_of_days;
+use crate::weather_integrations::open_weather_map::OpenWeatherMapForecastProcessor;
 
 const OPEN_WEATHER_MAP_NAME: &str = "OpenWeatherMap";
 const WEATHER_API_NAME: &str = "WeatherApi";
-
-fn get_current_weather(lat: String, lon: String, config_values: Configuration) {
-    match config_values.provider.as_str() {
-        OPEN_WEATHER_MAP_NAME => {
-            let open_weather_map_processor = OpenWeatherMapProcessor::new(
-                config_values.api_key,
-                String::from(lat),
-                String::from(lon),
-            );
-            open_weather_map_processor.parse_response();
-        }
-        WEATHER_API_NAME => {
-            let weather_api_processor = WeatherApiProcessor::new(
-                config_values.api_key,
-                String::from(lat),
-                String::from(lon),
-            );
-            weather_api_processor.parse_response();
-        }
-        _ => {}
-    }
-}
-
-fn get_specific_date_weather_forecast(lat: String, lon: String, config_values: Configuration){
-
-}
 
 fn main() {
     let start = Instant::now();
@@ -55,14 +31,43 @@ fn main() {
             let config_values =
                 config_handler.get_configuration_for_particular_weather_provider()
                     .expect("Please, configure weather provider first");
-            if date.is_some(){
-                return;
-            } else {
-                get_current_weather(lat, lon, config_values);
+            let days = get_amount_of_days(date).unwrap_or(0 as i64);
+            let processing_struct = weather_integration_router(
+                lat, lon, config_values, days
+            );
+            match processing_struct {
+                WeatherIntegrationTypes::WeatherApi(weather_api_processor) => {
+                    weather_api_processor.parse_response()
+                }
+                WeatherIntegrationTypes::OpenWeatherCurrent(open_weather_current_processor) => {
+                    open_weather_current_processor.parse_response()
+                }
+                WeatherIntegrationTypes::OpenWeatherForecast(open_weather_forecast_processor) => {
+                    open_weather_forecast_processor.parse_response()
+                }
             }
+
         }
         _ => (),
     }
     let end = start.elapsed();
     println!("Time spent = {:.2?}", end);
+}
+
+fn get_amount_of_days(date: Option<String>) -> Result<i64, ()> {
+    if let Some(date_str) = date {
+        if let Some(days) = convert_date_to_amount_of_days(date_str.as_str()) {
+            if days < 0 || days > 14 {
+                println!("Forecast available for 14 days only. The current weather:");
+                Err(())
+            } else {
+                Ok(days)
+            }
+        } else {
+            println!("Invalid date format");
+            Err(())
+        }
+    } else {
+        Ok(0)
+    }
 }

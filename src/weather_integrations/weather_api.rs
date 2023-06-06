@@ -1,25 +1,26 @@
 use crate::weather_integrations::WeatherIntegration;
 use reqwest::blocking::Client;
-use crate::weather_integrations::weather_api_schemas::WeatherApiResponse;
+use crate::weather_integrations::weather_api_schemas::WeatherApiForecastResponse;
 
 pub struct WeatherApiProcessor {
-    api_key: String,
-    lat: String,
-    lon: String,
+    pub(crate) api_key: String,
+    pub(crate) lat: String,
+    pub(crate) lon: String,
+    pub(crate) date: i64
 }
 
 impl WeatherApiProcessor {
-    pub(crate) fn new(api_key: String, lat: String, lon: String) -> Self {
-        WeatherApiProcessor { api_key, lat, lon }
+    pub(crate) fn new(api_key: String, lat: String, lon: String, date: i64) -> Self {
+        WeatherApiProcessor { api_key, lat, lon, date }
     }
 }
 
-const CURRENT_WEATHER_URL: &str = "http://api.weatherapi.com/v1/current.json?q=";
+const WEATHER_URL: &str = "http://api.weatherapi.com/v1/forecast.json?q=";
 
 
 impl WeatherIntegration for WeatherApiProcessor {
-    type Response = Result<WeatherApiResponse, String>;
-    fn make_request(&self) -> Result<WeatherApiResponse, String> {
+    type Response = Result<WeatherApiForecastResponse, String>;
+    fn make_request(&self) -> Result<WeatherApiForecastResponse, String> {
         let url = self.get_data_for_request();
         println!("url: {}", url);
         let raw_response = Client::new()
@@ -30,7 +31,7 @@ impl WeatherIntegration for WeatherApiProcessor {
             .expect("Unexpected response");
         if raw_response.status().is_success() {
             let json_response = raw_response
-                .json::<WeatherApiResponse>()
+                .json::<WeatherApiForecastResponse>()
                 .expect("Unexpected body");
             Ok(json_response)
         } else if raw_response.status().is_client_error() {
@@ -50,16 +51,26 @@ impl WeatherIntegration for WeatherApiProcessor {
         // Implement the logic to parse the response JSON and extract the weather data
         // In this example, we simply return the response as-is as a Vec<u8>
         let response = self.make_request().unwrap();
-        let weather = &response.current.condition.text;
-        let temperature = &response.current.temp_f;
-        let pressure = &response.current.pressure_mb;
-        let humidity = &response.current.humidity;
-
-        let parsed_string = format!(
-            "Weather: {}, Temperature: {} F, Pressure: {} hPa, Humidity: {}%",
-            weather, temperature, pressure, humidity
-        );
-        println!("{}", parsed_string);
+        if self.date > 0 {
+            let weather = &response.forecast.forecastday[(self.date - 1) as usize].day.condition.text;
+            let temperature = &response.forecast.forecastday[(self.date - 1) as usize].day.avgtemp_f;
+            let humidity = &response.forecast.forecastday[(self.date - 1) as usize].day.avghumidity;
+            let parsed_string = format!(
+                "Weather: {}, Temperature: {} F, Humidity: {}%",
+                weather, temperature, humidity
+            );
+            println!("{}", parsed_string);
+        } else {
+            let weather = &response.current.condition.text;
+            let temperature = &response.current.temp_f;
+            let pressure = &response.current.pressure_mb;
+            let humidity = &response.current.humidity;
+            let parsed_string = format!(
+                "Weather: {}, Temperature: {} F, Pressure: {} hPa, Humidity: {}%",
+                weather, temperature, pressure, humidity
+            );
+            println!("{}", parsed_string);
+        }
     }
 
     fn get_data_for_request(&self) -> String {
@@ -68,8 +79,8 @@ impl WeatherIntegration for WeatherApiProcessor {
         // let lat = "51.5074";
         // let lon = "48.1278";
         let url = format!(
-            "{}{},{}",
-            CURRENT_WEATHER_URL, self.lat, self.lon
+            "{}{},{}&days={}",
+            WEATHER_URL, self.lat, self.lon, self.date
         );
         url
     }

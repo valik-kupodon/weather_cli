@@ -1,5 +1,6 @@
 pub mod custom_config;
 
+use chrono::{Local, NaiveDate};
 use clap::{Arg, ArgMatches, Command};
 use crate::{OPEN_WEATHER_MAP_NAME, WEATHER_API_NAME};
 
@@ -90,4 +91,17 @@ pub fn get_weather_args(sub_m: &ArgMatches) -> (String, String, Option<String>) 
         return (latitude, longitude, Option::from(date));
     }
     return (latitude, longitude, date);
+}
+
+pub fn convert_date_to_amount_of_days(date: &str) -> Option<i64> {
+    // Get the current date
+    let current_date = Local::now().naive_local();
+
+    // Parse the input date string
+    let input_date = NaiveDate::parse_from_str(date, "%Y-%m-%d").unwrap_or(current_date.into());
+
+    // Calculate the difference in days
+    let days_difference = input_date.signed_duration_since(NaiveDate::from(current_date)).num_days();
+
+    Some(days_difference)
 }

@@ -1,0 +1,36 @@
+name: Build and Test
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        rust-version: [stable]
+
+    steps:
+      - name: Set up Rust
+        uses: actions/setup-rust@v1
+        with:
+          rust-version: ${{ matrix.rust-version }}
+
+      - name: Check out code
+        uses: actions/checkout@v2
+
+      - name: Build
+        run: cargo build --verbose
+
+      - name: Run Tests
+        run: cargo test --verbose
+
+      - name: Clippy Check
+        run: cargo clippy --verbose -- -D warnings
+
+      - name: Rustfmt Check
+        run: cargo fmt --verbose -- --check
