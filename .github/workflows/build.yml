@@ -19,10 +19,6 @@ jobs:
         uses: actions/setup-rust@v1
         with:
           rust-version: ${{ matrix.rust-version }}
-
-      - name: Check out code
-        uses: actions/checkout@v2
-
       - name: Build
         run: cargo build --verbose
 
