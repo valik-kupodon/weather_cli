@@ -18,6 +18,7 @@ jobs:
       - name: Set up Rust
           uses: ATiltedTree/setup-rust@v1
           with:
+            rust-version: stable
             profile: minimal
             toolchain: ${{ matrix.rust-version }}
 
