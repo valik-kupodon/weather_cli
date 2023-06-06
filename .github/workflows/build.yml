@@ -16,9 +16,11 @@ jobs:
 
     steps:
       - name: Set up Rust
-        uses: actions/setup-rust@v1
-        with:
-          rust-version: ${{ matrix.rust-version }}
+          run: |
+            curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain ${{ matrix.rust-version }}
+            export PATH="$HOME/.cargo/bin:$PATH"
+            rustc --version
+            cargo --version
 
       - name: Check out code
         uses: actions/checkout@v2
