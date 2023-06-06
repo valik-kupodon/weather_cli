@@ -71,3 +71,32 @@ fn get_amount_of_days(date: Option<String>) -> Result<i64, ()> {
         Ok(0)
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_get_amount_of_days_valid_date() {
+        let date = Some("2023-06-01".to_string());
+        let result = get_amount_of_days(date);
+
+        assert_eq!(result, Err(()));
+    }
+
+    #[test]
+    fn test_get_amount_of_days_invalid_date() {
+        let date = Some("2023-06-abc".to_string());
+        let result = get_amount_of_days(date);
+
+        assert_eq!(result, Ok(0));
+    }
+
+    #[test]
+    fn test_get_amount_of_days_no_date() {
+        let date = None;
+        let result = get_amount_of_days(date);
+
+        assert_eq!(result, Ok(0));
+    }
+}

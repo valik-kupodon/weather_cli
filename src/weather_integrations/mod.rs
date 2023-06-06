@@ -51,3 +51,90 @@ pub fn weather_integration_router(lat: String, lon: String, config: Configuratio
         _ => panic!("Invalid processing name"),
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_weather_integration_router_open_weather_map_forecast() {
+        let lat = "40.7128".to_string();
+        let lon = "-74.0060".to_string();
+        let config = Configuration {
+            provider: OPEN_WEATHER_MAP_NAME.to_string(),
+            api_key: "api_key_123".to_string(),
+        };
+        let date = 7;
+
+        let result = weather_integration_router(lat, lon, config, date);
+
+        match result {
+            WeatherIntegrationTypes::OpenWeatherForecast(processor) => {
+                assert_eq!(processor.api_key, "api_key_123");
+                assert_eq!(processor.lat, "40.7128");
+                assert_eq!(processor.lon, "-74.0060");
+                assert_eq!(processor.date, 7);
+            },
+            _ => panic!("Unexpected WeatherIntegrationTypes variant"),
+        }
+    }
+
+    #[test]
+    fn test_weather_integration_router_open_weather_map_current() {
+        let lat = "40.7128".to_string();
+        let lon = "-74.0060".to_string();
+        let config = Configuration {
+            provider: OPEN_WEATHER_MAP_NAME.to_string(),
+            api_key: "api_key_123".to_string(),
+        };
+        let date = 0;
+
+        let result = weather_integration_router(lat, lon, config, date);
+
+        match result {
+            WeatherIntegrationTypes::OpenWeatherCurrent(processor) => {
+                assert_eq!(processor.api_key, "api_key_123");
+                assert_eq!(processor.lat, "40.7128");
+                assert_eq!(processor.lon, "-74.0060");
+            },
+            _ => panic!("Unexpected WeatherIntegrationTypes variant"),
+        }
+    }
+
+    #[test]
+    fn test_weather_integration_router_weather_api() {
+        let lat = "40.7128".to_string();
+        let lon = "-74.0060".to_string();
+        let config = Configuration {
+            provider: WEATHER_API_NAME.to_string(),
+            api_key: "api_key_123".to_string(),
+        };
+        let date = 7;
+
+        let result = weather_integration_router(lat, lon, config, date);
+
+        match result {
+            WeatherIntegrationTypes::WeatherApi(processor) => {
+                assert_eq!(processor.api_key, "api_key_123");
+                assert_eq!(processor.lat, "40.7128");
+                assert_eq!(processor.lon, "-74.0060");
+                assert_eq!(processor.date, 7);
+            },
+            _ => panic!("Unexpected WeatherIntegrationTypes variant"),
+        }
+    }
+
+    #[test]
+    #[should_panic(expected = "Invalid processing name")]
+    fn test_weather_integration_router_invalid_provider() {
+        let lat = "40.7128".to_string();
+        let lon = "-74.0060".to_string();
+        let config = Configuration {
+            provider: "invalid_provider".to_string(),
+            api_key: "api_key_123".to_string(),
+        };
+        let date = 7;
+
+        weather_integration_router(lat, lon, config, date);
+    }
+}
